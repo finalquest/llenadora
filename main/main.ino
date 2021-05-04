@@ -1,6 +1,7 @@
 #include "EncoderStepCounter.h"
 #include "U8glib.h"
 #include <arduino-timer.h>
+#include <EEPROM.h>
 
 U8GLIB_ST7920_128X64_1X u8g(50, 52, 53); // SPI Com: SCK = en = 18, MOSI = rw = 16, CS = di = 17
 
@@ -298,7 +299,12 @@ void setup(void)
   encoder.begin();
   Serial.begin(9600);
   digitalWrite(WASH_ACTION, HIGH);
-
+  tiempos[0] = EEPROM.read(0);
+  tiempos[1] = EEPROM.read(1);
+  tiempos[2] = EEPROM.read(2);
+  
+  Serial.println(washTime);
+  
   u8g.setFont(u8g_font_unifont);
 
   if (u8g.getMode() == U8G_MODE_R3G3B2)
@@ -357,6 +363,11 @@ void loop(void)
   if (menu_button_val == LOW && avoid_repeat == false && menu_current > 0 && (millis() - buttonDownTime) > long(2000))
   {
     menu_edit = !menu_edit;
+    if(menu_edit == false) {
+      EEPROM.update(0, tiempos[0]);
+      EEPROM.update(1, tiempos[1]);
+      EEPROM.update(2, tiempos[2]);
+    }
     menu_redraw_required = true;
     avoid_repeat = true;
   }
